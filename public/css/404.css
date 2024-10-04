@@ -1,0 +1,48 @@
+body {
+    background-image: url('/img/space.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+
+    
+    color: #fff;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+h1 {
+    font-size: 4rem;
+    margin-bottom: 0.5rem;
+}
+p {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+.countdown {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+.astronaut {
+    width: 150px;
+    height: auto;
+}
+a {
+    color: #00aaff;
+    text-decoration: none;
+    font-size: 1.2rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #00aaff;
+    border-radius: 5px;
+}
+a:hover {
+    background-color: #00aaff;
+    color: #fff;
+}
