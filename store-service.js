@@ -75,4 +75,71 @@ function getCategories() {
     });
 }
 
-module.exports = { initialize, getAllItems, getPublishedItems, getCategories,items, categories };
+function addItem(itemData){
+    return new Promise((resolve, reject) => {
+        try {
+            // if published is undefined set it false, if not set it true
+           itemData.published = itemData.published !== undefined; 
+
+           //set id to length of the item + 1
+           itemData.id = items.length + 1;
+
+           //push the item onto array of the items
+           items.push(itemData);
+           
+           resolve(itemData);
+
+        } catch(err) {
+            reject('Error adding item: ' + err);
+        }
+    })
+}
+
+function getItemsByCategory(category) {
+    return new Promise((resolve, rejects) => {
+        const ItemsByCategory = items.filter(item => item.category === category);
+        if (ItemsByCategory.length > 0) {
+            resolve(ItemsByCategory);
+        } else {
+            reject("no results returned");
+        }
+    })
+}
+
+function getItemsByMinDate(minDateStr) {
+    return new Promise((resolve, rejects) => {
+        const ItemsByDate = items.filter(item => new Date(item.postDate) >= new Date(minDateStr));
+        if (ItemsByDate.length > 0) {
+            resolve(ItemsByDate);
+        } else {
+            reject("no results returned");
+        }
+    })
+}
+
+function getItemById(id) {
+    return new Promise((resolve, rejects) => {
+        const foundItem = items.find(item => item.id === id);
+        if(foundItem)
+        {
+            resolve(foundItem);
+        }
+        else
+        {
+            rejects("no result returned");
+        }
+    })
+}
+
+module.exports = { 
+    initialize, 
+    getAllItems, 
+    getPublishedItems, 
+    getCategories, 
+    addItem, 
+    getItemsByCategory, 
+    getItemsByMinDate,
+    getItemById,
+    items, 
+    categories 
+};

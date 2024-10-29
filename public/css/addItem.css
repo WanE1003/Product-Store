@@ -1,0 +1,11 @@
+body {
+    background-image: url('/img/additem.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    color: gold;
+}
+
+form {
+    padding-top: 60px;
+}
