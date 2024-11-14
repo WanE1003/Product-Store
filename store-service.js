@@ -8,11 +8,11 @@ distributed to other students. I acknoledge that violation of this policy
 to any degree results in a ZERO for this assignment and possible failure of
 the course. 
 
-Name:   
-Student ID:   
-Date:  
+Name:   Seungwan Hong
+Student ID:   167572221
+Date:  Nov 14, 2024
 Cyclic Web App URL:  
-GitHub Repository URL:  
+GitHub Repository URL:  https://github.com/WanE1003/web322-app.git
 
 ********************************************************************************/  
 
