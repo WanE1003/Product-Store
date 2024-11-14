@@ -4,9 +4,10 @@ body {
     background-repeat: no-repeat;
     padding-top: 60px;
     padding-left: 40px;
-
 }
 
-form {
-    padding-top: 60px;
+
+h2 {
+    font-weight: bold;
+
 }

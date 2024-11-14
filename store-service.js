@@ -1,5 +1,23 @@
-const { rejects } = require("assert");
+/********************************************************************************* 
+
+WEB322 – Assignment 03
+I declare that this assignment is my own work in accordance with Seneca
+Academic Policy.  No part of this assignment has been copied manually or 
+electronically from any other source (including 3rd party web sites) or 
+distributed to other students. I acknoledge that violation of this policy
+to any degree results in a ZERO for this assignment and possible failure of
+the course. 
+
+Name:   
+Student ID:   
+Date:  
+Cyclic Web App URL:  
+GitHub Repository URL:  
+
+********************************************************************************/  
+
 var fs = require("fs");
+const { rejects } = require("assert");
 const { resolve } = require("path");
 
 
@@ -8,86 +26,75 @@ let categories = [];
 
 function initialize() {
     return new Promise((resolve, reject) => {
-        // read item.json file
-        fs.readFile('./data/items.json', 'utf8', (err,data) => {
-            if(err) {
-                return reject("unable to read items file");
-            }
-            try {
-                // convert files to array
+        fs.readFile('./data/items.json', 'utf8', (err, data) => {
+            if (err) {
+                reject(err);
+            } else {
                 items = JSON.parse(data);
-            } catch (parseError) {
-                return reject("unable to parse items file");
+
+                fs.readFile('./data/categories.json', 'utf8', (err, data) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        categories = JSON.parse(data);
+                        resolve();
+                    }
+                });
             }
-        })
-        
-        // read categories file
-        fs.readFile('./data/categories.json', 'utf8', (err,data) => {
-            if(err) {
-                return reject("unable to read categories file");
-            }
-            try {
-                // convert files to array
-                categories = JSON.parse(data);
-            } catch (parseError) {
-                return reject("unable to parse categories file");
-            }
-        })
-        // call resolve if it read successfuly
-        resolve();
-    })
+        });
+    });
 }
 
 function getAllItems() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve,reject)=>{
+        (items.length > 0 ) ? resolve(items) : reject("no results returned"); 
+    });
+}
 
-        if(items.length > 0)
-            {
-            return resolve(items); // return resolve if the array has a item
+function getItemById(id) {
+    return new Promise((resolve,reject)=>{
+        let foundItem = items.find(item => item.id == id);
+
+        if(foundItem){
+            resolve(foundItem);
+        }else{
+            reject("no result returned");
         }
-        else 
-        {
-            reject("The array is empty"); // return reject if the array is empty
-        }
-    })
+    });
 }
 
 function getPublishedItems() {
-    return new Promise((resolve, rejects) => {
-        // Filter items that published is true
-        const publishedItems = items.filter(item => item.published === true);
-        
-        if (publishedItems.length > 0) {
-            resolve(publishedItems); // Returns an array of filtered items
-        } else {
-            reject("no results returned"); // Returns an error if no filtered items are found
-        }
-    })
+    return new Promise((resolve,reject)=>{
+        (items.length > 0) ? resolve(items.filter(item => items.published)) : reject("no results returned");
+    });
 }
 
 function getCategories() {
-    return new Promise((resolve, reject) => {
-        if (categories.length > 0) {
-            resolve(categories); // Return resolve if the array has categories
-        } else {
-            reject("The array is empty"); // Return reject if the array is empty
-        }
+    return new Promise((resolve,reject)=>{
+        (categories.length > 0 ) ? resolve(categories) : reject("no results returned"); 
     });
 }
 
 function addItem(itemData){
     return new Promise((resolve, reject) => {
         try {
-            // if published is undefined set it false, if not set it true
-           itemData.published = itemData.published !== undefined; 
+            // check if published is true or not. 
+            itemData.published = itemData.published ? true : false;
 
-           //set id to length of the item + 1
-           itemData.id = items.length + 1;
+            //set id to length of the item + 1
+            itemData.id = items.length + 1;
 
-           //push the item onto array of the items
-           items.push(itemData);
+            // Get current date in YYYY-M-D format
+            const currentDate = new Date();
+            const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}`;
+
+            // Add itemDte to itemData
+            itemData.postDate = formattedDate;
+            
+            //push the item onto array of the items
+            items.push(itemData);
            
-           resolve(itemData);
+            resolve(itemData);
 
         } catch(err) {
             reject('Error adding item: ' + err);
@@ -96,37 +103,39 @@ function addItem(itemData){
 }
 
 function getItemsByCategory(category) {
-    return new Promise((resolve, rejects) => {
-        const ItemsByCategory = items.filter(item => item.category === category);
-        if (ItemsByCategory.length > 0) {
-            resolve(ItemsByCategory);
-        } else {
-            reject("no results returned");
+    return new Promise((resolve,reject)=>{
+        let filteredItems = items.filter(post=>post.category == category);
+
+        if(filteredItems.length == 0){
+            reject("no results returned")
+        }else{
+            resolve(filteredItems);
         }
-    })
+    });
 }
 
 function getItemsByMinDate(minDateStr) {
-    return new Promise((resolve, rejects) => {
-        const ItemsByDate = items.filter(item => new Date(item.postDate) >= new Date(minDateStr));
-        if (ItemsByDate.length > 0) {
-            resolve(ItemsByDate);
+    return new Promise((resolve, reject) => {
+        let filteredItems = items.filter(post => (new Date(post.postDate)) >= (new Date(minDateStr)))
+
+        if (filteredItems.length == 0) {
+            reject("no results returned")
         } else {
-            reject("no results returned");
+            resolve(filteredItems);
         }
-    })
+    });
 }
 
-function getItemById(id) {
+function getPublishedItemsByCategory(category)
+{
     return new Promise((resolve, rejects) => {
-        const foundItem = items.find(item => item.id === id);
-        if(foundItem)
-        {
-            resolve(foundItem);
-        }
-        else
-        {
-            rejects("no result returned");
+        // Filter items that published is true
+        let publishedItems = items.filter(item => item.published == true && item.category == category);
+        
+        if (publishedItems.length > 0) {
+            resolve(publishedItems); // Returns an array of filtered items
+        } else {
+            reject("no results returned"); // Returns an error if no filtered items are found
         }
     })
 }
@@ -140,6 +149,7 @@ module.exports = {
     getItemsByCategory, 
     getItemsByMinDate,
     getItemById,
+    getPublishedItemsByCategory,
     items, 
     categories 
 };
