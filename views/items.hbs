@@ -13,6 +13,7 @@
         <div class="col-md-12">
 
             <h2>Items</h2>
+            <a href="/Items/add" class="btn btn-success pull-right">Add Item</a>
             <hr>
 
             {{#if items}}
@@ -27,6 +28,7 @@
                             <th scope="col">Category</th>
                             <th scope="col">Price</th>
                             <th scope="col">Published</th>
+                            <th></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -38,6 +40,7 @@
                                     <td><a href="/items?category={{this.category}}">{{this.category}}</a></td>
                                     <td>${{this.price}}</td>
                                     <td>{{#if this.published}}Yes{{else}}No{{/if}}</td>
+                                    <td><a href="/items/delete/{{this.id}}"class="btn btn-danger">remove</a></td>
                                 </tr>
                             {{/each}}
                         </tbody>
