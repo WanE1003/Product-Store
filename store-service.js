@@ -1,18 +1,13 @@
-/********************************************************************************* 
+/*********************************************************************************
+WEB322 – Assignment 06
+I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
+No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
 
-WEB322 – Assignment 05
-I declare that this assignment is my own work in accordance with Seneca
-Academic Policy.  No part of this assignment has been copied manually or 
-electronically from any other source (including 3rd party web sites) or 
-distributed to other students. I acknoledge that violation of this policy
-to any degree results in a ZERO for this assignment and possible failure of
-the course. 
-
-Name:   Seungwan Hong
-Student ID:   167572221
-Date:  Nov 22, 2024
-Cyclic Web App URL:  
-GitHub Repository URL:  https://github.com/WanE1003/web322-app.git
+Name: Seungwan Hong
+Student ID: 167572221
+Date: Dec 2, 2024
+Vercel Web App URL: https://web322-app-plum.vercel.app/
+GitHub Repository URL: https://github.com/WanE1003/web322-app.git
 
 ********************************************************************************/  
 const Sequelize = require('sequelize');

@@ -1,27 +1,54 @@
 /*********************************************************************************
-WEB322 – Assignment 05
+WEB322 – Assignment 06
 I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
 No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
 
 Name: Seungwan Hong
 Student ID: 167572221
-Date: Nov 22, 2024
+Date: Dec 4, 2024
 Vercel Web App URL: https://web322-app-plum.vercel.app/
 GitHub Repository URL: https://github.com/WanE1003/web322-app.git
 
 ********************************************************************************/ 
-
+// Import the express module
 const express = require('express');
-const path = require('path');
-const storeService = require('./store-service');
+const app = express();
 
+// Import the path module
+const path = require('path');
+
+// Import storeService and authData (external service related code)
+const storeService = require('./store-service');
+const authData = require('./auth-service');
+
+// Import multer, cloudinary, and streamifier (for file uploads)
 const multer = require("multer");
 const cloudinary = require('cloudinary').v2;
 const streamifier = require('streamifier');
 
+// Import strip-js module (for stripping JS code)
 const stripJs = require('strip-js');
+
+// Import client-sessions module (for session management)
+const clientSessions = require('client-sessions');
+
+// Set environment variables and default port
 const HTTP_PORT = process.env.PORT || 8080;
 
+// Client session middleware configuration
+app.use(
+    clientSessions({
+      cookieName: 'session', // The name of the cookie to store session data
+      secret: 'o6LjQ5EVNC28ZgK64hDELM18ScpFQr', // A secret key to encrypt session data
+      duration: 24 * 60 * 60 * 1000,  // Session duration in milliseconds (1 day)
+      activeDuration: 1000 * 60 * 5, // Extend session by 5 minutes if active
+      httpOnly: true, // Prevent client-side access to cookies
+      secure: process.env.NODE_ENV === 'production' || false,  // Send cookies only in HTTPS in production environment
+      sameSite: 'strict', // Restrict cross-site requests to enhance security
+    })
+);
+
+// Cloudinary configuration
 cloudinary.config({
     cloud_name: 'dyhjckz8c',
     api_key: '983288362233439',
@@ -29,15 +56,15 @@ cloudinary.config({
     secure: true
 });
 
-const upload = multer(); // no { storage: storage } since we are not using disk storage
-const app = express();
+// Multer setup: for file uploads without disk storage
+const upload = multer(); // No storage option as files are not saved to disk
 
-// add the express-handlebars module
+// Add express-handlebars module
 const exphbs = require("express-handlebars");
-
 // Create a Handlebars instance and register helpers
 const hbs = exphbs.create({
     helpers: {
+        // Helper for navigation links with active class based on the current route
         navLink: function (url, options) {
             return (
                 '<li class="nav-item"><a ' +
@@ -45,6 +72,7 @@ const hbs = exphbs.create({
                 ' href="' + url + '">' + options.fn(this) + '</a></li>'
             );
         },
+        // Helper to check if two values are equal
         equal: function (lvalue, rvalue, options) {
             if (arguments.length < 3) {
                 throw new Error("Handlebars Helper 'equal' needs 2 parameters");
@@ -55,9 +83,11 @@ const hbs = exphbs.create({
                 return options.fn(this);
             }
         },
+        // Helper to sanitize HTML by stripping JavaScript
         safeHTML: function(context){
             return stripJs(context);
         },
+        // Helper to format date as "YYYY-MM-DD"
         formatDate: function(dateObj){
             let year = dateObj.getFullYear();
             let month = (dateObj.getMonth() + 1).toString();
@@ -65,23 +95,46 @@ const hbs = exphbs.create({
             return `${year}-${month.padStart(2, '0')}-${day.padStart(2,'0')}`;
         }        
     },
-    defaultLayout: 'main',
-    extname: '.hbs'
+    defaultLayout: 'main', // Default layout file name
+    extname: '.hbs' // File extension
 });
 
-// tell express we are using the HBS engine
+// Tell express to use the HBS engine
 app.engine(".hbs", hbs.engine);
 app.set("view engine", ".hbs");
 
+// Use the 'public' directory for serving static files
 app.use(express.static('public')); 
+
+// Middleware to parse URL-encoded data
 app.use(express.urlencoded({extended: true}));
 
-app.use(function(req,res,next){
+// Middleware to set activeRoute for current path
+app.use(function(req, res, next){
     let route = req.path.substring(1);
     app.locals.activeRoute = "/" + (isNaN(route.split('/')[1]) ? route.replace(/\/(?!.*)/, "") : route.replace(/\/(.*)/, ""));
     app.locals.viewingCategory = req.query.category;
     next();
 });
+
+// Middleware to make the session object available in templates
+app.use(function(req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
+
+// 'ensureLogin' middleware to check if the user is logged in
+function ensureLogin(req, res, next) {
+    if (!req.session.user) {  // If session doesn't have userName
+        res.redirect('/login');   // Redirect to login page
+    } else {
+        next();  // If logged in, proceed to the next middleware or route
+    }
+}
+
+// Apply 'ensureLogin' middleware to specific routes
+app.use(['/items', '/categories', '/item', '/category'], ensureLogin);
+  
 
 
 
@@ -89,6 +142,69 @@ app.use(function(req,res,next){
 app.get('/', (req, res) => {
     res.redirect("/about");
 });
+
+// register page
+app.get('/register', (req, res) => {
+    res.render('register');
+})
+
+// POST /register route
+app.post('/register', (req, res) => {
+    const userData = req.body;
+
+    authData.registerUser(userData)
+    .then(() => {
+        res.render('register', { successMessage: "User created" });
+    })
+    .catch((err) => {
+        res.render('register', {errorMessage: err, userName: userData.userName});
+    });
+});
+
+// login page
+app.get('/login', (req, res) => {
+    res.render('login');
+})
+
+// POST / login route
+app.post('/login', (req,res) => {
+    // Set the User-Agent in the request body
+    req.body.userAgent = req.get('User-Agent');
+
+    // Get the user data from the request body
+    const userData = req.body;
+
+    // Authenticate the user
+    authData.checkUser(userData)
+    .then((user) => {
+      req.session.user = {
+        userName: user.userName,
+        email: user.email,
+        loginHistory: user.loginHistory,
+      };
+      console.log(req.session.userAgent);
+      res.redirect('/items');
+    })
+    // Render the login view with an error message and the provided userName
+    .catch((err) => {
+        res.render('login', {errorMessage: err, userName: req.body.userName} )
+    });
+});
+
+// logout Route
+app.get('/logout', (req, res) => {
+    // Destroy the session data
+    req.session.reset(); // Clear the session (using client-sessions' reset method)
+
+    // Redirect the user to the home page
+    res.redirect('/'); 
+});
+
+// Route to render the "userHistory" view
+app.get('/userHistory', ensureLogin, (req, res) => { // Protected by ensureLogin middleware to restrict access to logged-in users only
+    // Render the "userHistory" view without any additional data
+    res.render('userHistory')
+})
 
 // About page
 app.get('/about', (req, res) => {
@@ -391,12 +507,13 @@ app.use((req, res) => {
 
 // Start server after initialization
 storeService.initialize()
+.then(authData.initialize)
 .then(() => {
     // Start server
     app.listen(HTTP_PORT, () => {
         console.log(`server listening on: ${HTTP_PORT}`)
     });
 })
-.catch((error) => {
-    console.error("Error initializing the store service:", error);
+.catch((err) => {
+    console.error("Unable to start server:", err);
 })

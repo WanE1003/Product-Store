@@ -9,3 +9,15 @@ h2 {
     font-weight: bold;
 
 }
+
+.navbar {
+    font-weight: bold;
+}
+
+.nav {
+    margin-right: 10px;
+}
+
+.navbar-form {
+    margin-left: auto;
+}
