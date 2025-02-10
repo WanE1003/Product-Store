@@ -73,7 +73,7 @@ module.exports.initialize = function() {
 
 module.exports.getAllItems = function () {
     return new Promise((resolve, reject) => {
-        sequelize.findAll()
+        Item.findAll()
         .then((data) => {
             if (data.length > 0) {
                 resolve(data);

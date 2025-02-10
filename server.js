@@ -350,7 +350,7 @@ app.get('/items', (req, res) => {
                     res.render("items", {message: "no results"});
                 }         
             })
-            .catch(err => res.render("items", {message: "no results"}));
+            .catch(err => res.render("items", {message: `no results`}));
     }
 });
 // item route with id
