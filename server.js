@@ -1,15 +1,11 @@
 /*********************************************************************************
-WEB322 – Assignment 06
-I declare that this assignment is my own work in accordance with Seneca Academic Policy.  
-No part of this assignment has been copied manually or electronically from any other source (including 3rd party web sites) or distributed to other students.
 
 Name: Seungwan Hong
-Student ID: 167572221
-Date: Dec 4, 2024
-Vercel Web App URL: https://web322-app-plum.vercel.app/
-GitHub Repository URL: https://github.com/WanE1003/web322-app.git
+Email: mambo9991@gmail.com
+Date: Dec 2, 2024
+GitHub Repository URL: https://github.com/WanE1003/Product-Store
 
-********************************************************************************/ 
+********************************************************************************/  
 // Import the express module
 const express = require('express');
 const app = express();
