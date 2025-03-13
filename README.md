@@ -76,3 +76,11 @@ Welcome to __Product Store!__ This is a web application built using __Node.js__ 
    
 
 ## 📷 __Screenshots__
+__Store Page__
+![Store Page](screenshot/Store-page.png)
+
+__Item Page__
+![Store Page](screenshot/itemPage.png)
+
+__Login History__
+![Store Page](screenshot/userHistory.png)
